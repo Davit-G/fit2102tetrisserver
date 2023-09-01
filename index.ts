@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import { connectAction, disconnectAction, numPlayersAction, sendMessageAction, backendUpdateAction, BackendActions } from "./actions";
-import { Client, ServerState, clientActionTransformer, Session } from "./reducers";
+import { Client, ServerState, clientActionTransformer, Session, defaultSocketState } from "./reducers";
 import { lazyState } from "./utils";
 import { randomUUID } from "crypto";
 
@@ -33,7 +33,7 @@ setInterval(() => {
 wss.on('connection', function connection(ws: WebSocket) {
     const user: Client = { uid: randomUUID(), ws }
 
-    updateState(connectAction(user, { blocks: [], gameEnd: false, domExit: [], objCount: 0, active: null, score: 0, paused: false }));
+    updateState(connectAction(user, defaultSocketState));
     
     ws.send(JSON.stringify(sendMessageAction("Welcome to the server!")));
     ws.send(JSON.stringify(numPlayersAction(gameState.value.clients.length)));
@@ -43,7 +43,7 @@ wss.on('connection', function connection(ws: WebSocket) {
     ws.on('message', interpretMessage(user));
 
     ws.on("close", function close(client) {
-        updateState(disconnectAction(user, { blocks: [], gameEnd: false, domExit: [], objCount: 0, active: null, score: 0, paused: false }));
+        updateState(disconnectAction(user, defaultSocketState));
         console.log("Connection closed: " + user.uid, "Total connections: " + gameState.value.clients.length);
 
         // clear any sessions that this user was in

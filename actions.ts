@@ -1,6 +1,6 @@
-import { Action, SocketState, createAction, createClientAction } from "./clientTypes";
+import { Action, createAction, createClientAction } from "./clientTypes";
 
-import { Client } from "./reducers";
+import { Client, SocketState } from "./reducers";
 
 export type BackendPayloads = {
     "StartServer": null,

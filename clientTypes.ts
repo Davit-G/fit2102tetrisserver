@@ -1,3 +1,4 @@
+import { SocketState } from "./reducers";
 
 export type SourceTypes = "State" | "Client" | "Server" | "Backend"
 
@@ -195,13 +196,3 @@ export type State = Readonly<{
     canHold: boolean, // whether the piece can be held or not
     paused: boolean, // whether the game is paused or not
 }>;
-
-export type SocketState = Readonly<{
-    blocks: ReadonlyArray<Block>, // blocks that have settled
-    gameEnd: boolean, // whether the game is finished or not
-    domExit: ReadonlyArray<Block>, // the elements that will be removed from the DOM / view
-    objCount: number, // the number of objects that have been created, good for creating IDs with
-    active: Readonly<Piece> | null, // the active piece that is currently being moved
-    score: number, // the score of the game
-    paused: boolean, // whether the game is paused or not
-}>

@@ -31,13 +31,13 @@ setInterval(() => {
 // when a new connection is made, send a message to the console
 wss.on('connection', function connection(ws) {
     const user = { uid: (0, crypto_1.randomUUID)(), ws };
-    updateState((0, actions_1.connectAction)(user, { blocks: [], gameEnd: false, domExit: [], objCount: 0, active: null, score: 0, paused: false }));
+    updateState((0, actions_1.connectAction)(user, reducers_1.defaultSocketState));
     ws.send(JSON.stringify((0, actions_1.sendMessageAction)("Welcome to the server!")));
     ws.send(JSON.stringify((0, actions_1.numPlayersAction)(gameState.value.clients.length)));
     console.log("New connection: " + user.uid, "Total connections: " + gameState.value.clients.length);
     ws.on('message', interpretMessage(user));
     ws.on("close", function close(client) {
-        updateState((0, actions_1.disconnectAction)(user, { blocks: [], gameEnd: false, domExit: [], objCount: 0, active: null, score: 0, paused: false }));
+        updateState((0, actions_1.disconnectAction)(user, reducers_1.defaultSocketState));
         console.log("Connection closed: " + user.uid, "Total connections: " + gameState.value.clients.length);
         // clear any sessions that this user was in
     });

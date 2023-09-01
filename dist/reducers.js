@@ -11,17 +11,18 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.actionReducer = exports.clientActionTransformer = void 0;
+exports.actionReducer = exports.clientActionTransformer = exports.defaultSocketState = void 0;
 const actions_1 = require("./actions");
 const clientTypes_1 = require("./clientTypes");
+exports.defaultSocketState = { blocks: [], gameEnd: false, domExit: [], objCount: 0, active: null, score: 0, paused: false, level: 1 };
 const newSession = (player1) => ({
     player1,
     player2: null,
     started: false,
     finished: false,
     winner: null,
-    player1State: { blocks: [], gameEnd: false, domExit: [], objCount: 0, active: null, score: 0, paused: false },
-    player2State: { blocks: [], gameEnd: false, domExit: [], objCount: 0, active: null, score: 0, paused: false },
+    player1State: exports.defaultSocketState,
+    player2State: exports.defaultSocketState,
     player1Actions: [],
     player2Actions: [],
     globalActions: [],
@@ -33,6 +34,7 @@ const filterState = (state) => ({
     objCount: state.objCount,
     active: state.active,
     score: state.score,
+    level: state.level,
     paused: state.paused,
 });
 const clientActionTransformer = (client) => (message) => {

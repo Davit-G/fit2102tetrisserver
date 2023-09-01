@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import {BackendAction, BackendActionTypes, BackendActions, queueUserAction, backendUpdateAction } from "./actions";
-import { ClientAction, ClientActions, ServerAction, ServerActions, SocketState, State, clientStartGameAction, clientUpdateAction, serverUpdateAction } from "./clientTypes";
+import { Block, ClientActions, Piece, ServerAction, ServerActions, State, clientStartGameAction, clientUpdateAction } from "./clientTypes";
 
 export type Client = {
     uid: string,
@@ -20,6 +20,17 @@ export type Session = {
     globalActions: ClientActions[],
 }
 
+export type SocketState = Readonly<{
+    blocks: ReadonlyArray<Block>, // blocks that have settled
+    gameEnd: boolean, // whether the game is finished or not
+    domExit: ReadonlyArray<Block>, // the elements that will be removed from the DOM / view
+    objCount: number, // the number of objects that have been created, good for creating IDs with
+    active: Readonly<Piece> | null, // the active piece that is currently being moved
+    score: number, // the score of the game
+    level: number, // difficulty level we are on
+    paused: boolean, // whether the game is paused or not
+}>
+
 export type ServerState = {
     clients: Client[],
     clientStates: { [key: string]: SocketState },
@@ -27,14 +38,16 @@ export type ServerState = {
     leaderboard: ReadonlyArray<{ client: Client, score: number }>,
 }
 
+export const defaultSocketState: SocketState = { blocks: [], gameEnd: false, domExit: [], objCount: 0, active: null, score: 0, paused: false, level: 1 }
+
 const newSession = (player1: Client): Session => ({
     player1,
     player2: null,
     started: false,
     finished: false,
     winner: null,
-    player1State: { blocks: [], gameEnd: false, domExit: [], objCount: 0, active: null, score: 0, paused: false },
-    player2State: { blocks: [], gameEnd: false, domExit: [], objCount: 0, active: null, score: 0, paused: false },
+    player1State: defaultSocketState,
+    player2State: defaultSocketState,
     player1Actions: [],
     player2Actions: [],
     globalActions: [],
@@ -47,6 +60,7 @@ const filterState = (state: State): SocketState => ({
     objCount: state.objCount,
     active: state.active,
     score: state.score,
+    level: state.level,
     paused: state.paused,
 })
 
