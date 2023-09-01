@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Sounds = exports.RotationType = exports.updateAction = exports.queueAction = exports.startGameAction = exports.pauseAction = exports.holdAction = exports.fallAction = exports.tickAction = exports.resetGameAction = exports.dropAction = exports.moveAction = exports.rotateAction = exports.createServerAction = exports.createClientAction = exports.createStateAction = exports.createAction = void 0;
+exports.Sounds = exports.RotationType = exports.serverUpdateAction = exports.serverQueueAction = exports.clientQueueGameAction = exports.clientUpdateAction = exports.clientStartGameAction = exports.startGameAction = exports.pauseAction = exports.holdAction = exports.fallAction = exports.tickAction = exports.resetGameAction = exports.dropAction = exports.moveAction = exports.rotateAction = exports.createServerAction = exports.createClientAction = exports.createStateAction = exports.createAction = void 0;
 // Utility function for creating actions
 const createAction = (type, payload, destination) => ({ type, payload, destination });
 exports.createAction = createAction;
@@ -29,10 +29,16 @@ const pauseAction = () => (0, exports.createStateAction)('Pause', null);
 exports.pauseAction = pauseAction;
 const startGameAction = (gamemode) => (0, exports.createStateAction)('StartGame', gamemode);
 exports.startGameAction = startGameAction;
-const queueAction = () => (0, exports.createServerAction)("Queue", null);
-exports.queueAction = queueAction;
-const updateAction = (state) => (0, exports.createServerAction)("Update", { state });
-exports.updateAction = updateAction;
+const clientStartGameAction = (gamemode) => (0, exports.createClientAction)("StartGame", { gamemode });
+exports.clientStartGameAction = clientStartGameAction;
+const clientUpdateAction = (state) => (0, exports.createClientAction)("Update", { state });
+exports.clientUpdateAction = clientUpdateAction;
+const clientQueueGameAction = () => (0, exports.createClientAction)("QueueGame", null);
+exports.clientQueueGameAction = clientQueueGameAction;
+const serverQueueAction = () => (0, exports.createServerAction)("Queue", null);
+exports.serverQueueAction = serverQueueAction;
+const serverUpdateAction = (state) => (0, exports.createServerAction)("Update", { state });
+exports.serverUpdateAction = serverUpdateAction;
 /**
  * Rotation type determines how a piece will have it's rotations calculated.
  * THREE means that the piece will be assumed to occupy a 3x3 matrix.

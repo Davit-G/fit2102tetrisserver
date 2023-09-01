@@ -1,5 +1,4 @@
-import { ServerAction, ServerActions, StartServer } from "./actions";
-import { Actions } from "./clientTypes";
+import { BackendAction, BackendActions, startServerAction } from "./actions";
 import { ServerState, actionReducer } from "./reducers";
 
 /**
@@ -8,7 +7,7 @@ import { ServerState, actionReducer } from "./reducers";
  */
 export interface LazySequence<T> {
     value: T;
-    next(action?: ServerActions): LazySequence<T>;
+    next(action?: BackendActions): LazySequence<T>;
 }
 
 /**
@@ -17,12 +16,12 @@ export interface LazySequence<T> {
  * @returns 
  */
 export function lazyState(startState: ServerState): LazySequence<ServerState> {
-    return function _next(action: ServerActions, state: ServerState): LazySequence<ServerState> {
+    return function _next(action: BackendActions, state: ServerState): LazySequence<ServerState> {
         const newState = actionReducer(state, action);
 
         return {
             value: newState,
-            next: (action: ServerActions) => _next(action, newState)
+            next: (action: BackendActions) => _next(action, newState)
         }
-    }({type: "StartServer"} as StartServer, startState)
+    }(startServerAction(), startState)
 }

@@ -57,17 +57,19 @@ export const startGameAction = (gamemode: "Singleplayer" | "Multiplayer") => cre
 // stuff that the client will be receiving from the multiplayer server
 // server -> client
 export type ClientPayloads = {
-    "ServerUpdate": { state: State },
     "StartGame": { gamemode: "Singleplayer" | "Multiplayer" },
     "NumPlayers": { numPlayers: number },
     "SendMessage": { message: string },
     "QueueGame": null,
+    "Update": { state: SocketState },
 } 
 
 export type ClientActionTypes = keyof ClientPayloads
 export type ClientActions = { [K in ClientActionTypes]: ClientAction<K> }[ClientActionTypes]
 
-
+export const clientStartGameAction = (gamemode: "Singleplayer" | "Multiplayer"): ClientAction<"StartGame"> => createClientAction("StartGame", { gamemode })
+export const clientUpdateAction = (state: SocketState): ClientAction<"Update"> => createClientAction("Update", { state })
+export const clientQueueGameAction = (): ClientAction<"QueueGame"> => createClientAction("QueueGame", null)
 
 // ======
 // Server Actions
@@ -81,8 +83,8 @@ export type ServerPayloads = {
 export type ServerActionTypes = keyof ServerPayloads
 export type ServerActions = { [K in ServerActionTypes]: ServerAction<K> }[ServerActionTypes]
 
-export const queueAction = (): ServerAction<"Queue"> => createServerAction("Queue", null)
-export const updateAction = (state: State): ServerAction<"Update"> => createServerAction("Update", { state })
+export const serverQueueAction = (): ServerAction<"Queue"> => createServerAction("Queue", null)
+export const serverUpdateAction = (state: State): ServerAction<"Update"> => createServerAction("Update", { state })
 
 
 

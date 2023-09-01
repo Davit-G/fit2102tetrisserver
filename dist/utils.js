@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.lazyState = void 0;
+const actions_1 = require("./actions");
 const reducers_1 = require("./reducers");
 /**
  * Lazy sequence generator for the server state
@@ -14,6 +15,6 @@ function lazyState(startState) {
             value: newState,
             next: (action) => _next(action, newState)
         };
-    }({ type: "StartServer" }, startState);
+    }((0, actions_1.startServerAction)(), startState);
 }
 exports.lazyState = lazyState;

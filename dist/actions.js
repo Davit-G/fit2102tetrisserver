@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendMessageAction = exports.numPlayersAction = exports.queueUserAction = exports.startServerAction = exports.startGameAction = exports.updateAction = exports.disconnectAction = exports.connectAction = exports.createBackendAction = void 0;
+exports.sendMessageAction = exports.numPlayersAction = exports.queueUserAction = exports.startServerAction = exports.startGameAction = exports.backendUpdateAction = exports.disconnectAction = exports.connectAction = exports.createBackendAction = void 0;
 const clientTypes_1 = require("./clientTypes");
 const createBackendAction = (type, payload) => (0, clientTypes_1.createAction)(type, payload, "Backend");
 exports.createBackendAction = createBackendAction;
@@ -10,13 +10,13 @@ const connectAction = (client, state) => (0, exports.createBackendAction)("Conne
 exports.connectAction = connectAction;
 const disconnectAction = (client, state) => (0, exports.createBackendAction)("Disconnect", { client, state });
 exports.disconnectAction = disconnectAction;
-const updateAction = (client, state) => (0, exports.createBackendAction)("Update", { client, state });
-exports.updateAction = updateAction;
+const backendUpdateAction = (client, state) => (0, exports.createBackendAction)("Update", { client, state });
+exports.backendUpdateAction = backendUpdateAction;
 const startGameAction = (client, state, gamemode) => (0, exports.createBackendAction)("StartGame", { client, state, gamemode });
 exports.startGameAction = startGameAction;
 const startServerAction = () => (0, exports.createBackendAction)("StartServer", null);
 exports.startServerAction = startServerAction;
-const queueUserAction = (client, state) => (0, exports.createBackendAction)("Queue", { client, state });
+const queueUserAction = (client) => (0, exports.createBackendAction)("Queue", { client });
 exports.queueUserAction = queueUserAction;
 // for server -> client actions
 const numPlayersAction = (numPlayers) => (0, clientTypes_1.createClientAction)("NumPlayers", { numPlayers });

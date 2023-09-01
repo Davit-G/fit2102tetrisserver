@@ -13,6 +13,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.actionReducer = exports.clientActionTransformer = void 0;
 const actions_1 = require("./actions");
+const clientTypes_1 = require("./clientTypes");
 const newSession = (player1) => ({
     player1,
     player2: null,
@@ -36,13 +37,15 @@ const filterState = (state) => ({
 });
 const clientActionTransformer = (client) => (message) => {
     const parsedAction = JSON.parse(message.toString())[0];
-    // console.log(Object.keys(parsedAction.payload.data.state))
-    switch (parsedAction.payload.type) {
-        case "Queue": {
-            return (0, actions_1.queueUserAction)(client, parsedAction.payload);
-        }
-        default: return (0, actions_1.updateAction)(client, filterState(parsedAction.payload.data.state));
+    switch (parsedAction.type) {
+        case "Queue":
+            {
+                return (0, actions_1.queueUserAction)(client);
+            }
+            ;
+        case "Update": return (0, actions_1.backendUpdateAction)(client, filterState(parsedAction.payload.state));
     }
+    return null;
 };
 exports.clientActionTransformer = clientActionTransformer;
 const actionReducer = (inState, action) => {
@@ -65,7 +68,7 @@ const actionReducer = (inState, action) => {
                 if (existingSession.player1.uid === payload.client.uid) {
                     return state; // don't do anything if the player is already in the session
                 }
-                return Object.assign(Object.assign({}, state), { sessions: Object.assign(Object.assign({}, state.sessions), { [key]: Object.assign(Object.assign({}, existingSession), { player2: payload.client, started: true, globalActions: [(0, actions_1.sendStartGameAction)()] }) }) });
+                return Object.assign(Object.assign({}, state), { sessions: Object.assign(Object.assign({}, state.sessions), { [key]: Object.assign(Object.assign({}, existingSession), { player2: payload.client, started: true, globalActions: [(0, clientTypes_1.clientStartGameAction)("Multiplayer")] }) }) });
             }
             return Object.assign(Object.assign({}, state), { sessions: Object.assign(Object.assign({}, state.sessions), { [payload.client.uid]: newSession(payload.client) }) });
         }
@@ -86,9 +89,10 @@ const actionReducer = (inState, action) => {
         }
         case "Update": {
             const { payload } = action;
+            const clientState = filterState(payload.state);
             const session = Object.values(state.sessions).filter((session) => session.player1 === payload.client || session.player2 === payload.client)[0];
             return Object.assign(Object.assign({}, state), { clientStates: Object.assign(Object.assign({}, state.clientStates), { [payload.client.uid]: payload.state }), sessions: Object.assign(Object.assign({}, state.sessions), (session ? {
-                    [payload.client.uid]: Object.assign(Object.assign({}, session), { player1State: session.player1.uid === payload.client.uid ? payload.state : session.player1State, player2State: ((_a = session.player2) === null || _a === void 0 ? void 0 : _a.uid) === payload.client.uid ? payload.state : session.player2State, player1Actions: ((_b = session.player2) === null || _b === void 0 ? void 0 : _b.uid) === payload.client.uid ? session.player1Actions.concat((0, actions_1.serverUpdateAction)(payload.state)) : [], player2Actions: session.player1.uid === payload.client.uid ? session.player2Actions.concat((0, actions_1.serverUpdateAction)(payload.state)) : [], globalActions: [] })
+                    [payload.client.uid]: Object.assign(Object.assign({}, session), { player1State: session.player1.uid === payload.client.uid ? payload.state : session.player1State, player2State: ((_a = session.player2) === null || _a === void 0 ? void 0 : _a.uid) === payload.client.uid ? payload.state : session.player2State, player1Actions: ((_b = session.player2) === null || _b === void 0 ? void 0 : _b.uid) === payload.client.uid ? session.player1Actions.concat((0, clientTypes_1.clientUpdateAction)(clientState)) : [], player2Actions: session.player1.uid === payload.client.uid ? session.player2Actions.concat((0, clientTypes_1.clientUpdateAction)(clientState)) : [], globalActions: [] })
                 } : {})) });
         }
         default: return state;

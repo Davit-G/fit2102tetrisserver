@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
-import {BackendAction, BackendActionTypes, BackendActions, queueUserAction, updateAction } from "./actions";
-import { ClientActions, SocketState, State, startGameAction } from "./clientTypes";
+import {BackendAction, BackendActionTypes, BackendActions, queueUserAction, backendUpdateAction } from "./actions";
+import { ClientAction, ClientActions, ServerAction, ServerActions, SocketState, State, clientStartGameAction, clientUpdateAction, serverUpdateAction } from "./clientTypes";
 
 export type Client = {
     uid: string,
@@ -50,17 +50,17 @@ const filterState = (state: State): SocketState => ({
     paused: state.paused,
 })
 
-export const clientActionTransformer = (client: Client) => (message: string): BackendActions => {
-    const parsedAction = JSON.parse(message.toString())[0] as BackendActions
-
-    // console.log(Object.keys(parsedAction.payload.data.state))
+export const clientActionTransformer = (client: Client) => (message: string): BackendActions | null => {
+    const parsedAction = JSON.parse(message.toString())[0] as ServerActions
 
     switch (parsedAction.type as BackendActionTypes) {
         case "Queue": {
-            return queueUserAction(client, (parsedAction as BackendAction<"Queue">).payload.state)
-        }
-        default: return updateAction(client, filterState((parsedAction as BackendAction<"Update">).payload.state as State))
+            return queueUserAction(client);
+        };
+        case "Update": return backendUpdateAction(client, filterState((parsedAction as ServerAction<"Update">).payload.state as State))
     }
+    
+    return null
 }
 
 export const actionReducer = (inState: ServerState, action: BackendActions): ServerState => {
@@ -109,7 +109,7 @@ export const actionReducer = (inState: ServerState, action: BackendActions): Ser
                             ...existingSession,
                             player2: payload.client,
                             started: true,
-                            globalActions: [sendStartGameAction()],
+                            globalActions: [clientStartGameAction("Multiplayer")],
                         }
                     }
                 }
@@ -129,7 +129,7 @@ export const actionReducer = (inState: ServerState, action: BackendActions): Ser
             }
         }
         case "Connect": {
-            const { payload } = action as Connect;
+            const { payload } = action as BackendAction<"Connect">;
             return {
                 ...state,
                 clients: [...state.clients, payload.client],
@@ -140,7 +140,7 @@ export const actionReducer = (inState: ServerState, action: BackendActions): Ser
             }
         }
         case "Disconnect": {
-            const { payload } = action as Disconnect;
+            const { payload } = action as BackendAction<"Disconnect">;
             return {
                 ...state,
                 clients: state.clients.filter(client => client !== payload.client),
@@ -157,7 +157,9 @@ export const actionReducer = (inState: ServerState, action: BackendActions): Ser
             }
         }
         case "Update": {
-            const { payload } = action as Update;
+            const { payload } = action as BackendAction<"Update">;
+            const clientState = filterState(payload.state as State)
+
             const session = Object.values(state.sessions).filter((session: Session) => session.player1 === payload.client || session.player2 === payload.client)[0]
 
             return {
@@ -173,8 +175,8 @@ export const actionReducer = (inState: ServerState, action: BackendActions): Ser
                             ...session,
                             player1State: session.player1.uid === payload.client.uid ? payload.state : session.player1State,
                             player2State: session.player2?.uid === payload.client.uid ? payload.state : session.player2State,
-                            player1Actions: session.player2?.uid === payload.client.uid ? session.player1Actions.concat(serverUpdateAction(payload.state)) : [],
-                            player2Actions: session.player1.uid === payload.client.uid ? session.player2Actions.concat(serverUpdateAction(payload.state)) : [],
+                            player1Actions: session.player2?.uid === payload.client.uid ? session.player1Actions.concat(clientUpdateAction(clientState)) : [],
+                            player2Actions: session.player1.uid === payload.client.uid ? session.player2Actions.concat(clientUpdateAction(clientState)) : [],
                             globalActions: []
                         }
                     }: {})

@@ -5,7 +5,7 @@
 // require the websocket module
 import WebSocket from "ws";
 import { Action, SocketState, State } from "./clientTypes";
-import { ServerAction, ServerActions, connectAction, disconnectAction, numPlayersAction, sendMessageAction, updateAction } from "./actions";
+import { ServerAction, ServerActions, connectAction, disconnectAction, numPlayersAction, sendMessageAction, backendUpdateAction } from "./actions";
 import { Client, ServerState, actionReducer, clientActionTransformer, Session } from "./reducers";
 import { lazyState } from "./utils";
 import { randomUUID } from "crypto";
