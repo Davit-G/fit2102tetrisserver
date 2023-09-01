@@ -51,7 +51,7 @@ const filterState = (state: State): SocketState => ({
 })
 
 export const clientActionTransformer = (client: Client) => (message: string): BackendActions | null => {
-    const parsedAction = JSON.parse(message.toString())[0] as ServerActions
+    const parsedAction = JSON.parse(message.toString()) as ServerActions
 
     switch (parsedAction.type as BackendActionTypes) {
         case "Queue": {

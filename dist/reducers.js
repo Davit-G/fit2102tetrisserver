@@ -36,7 +36,7 @@ const filterState = (state) => ({
     paused: state.paused,
 });
 const clientActionTransformer = (client) => (message) => {
-    const parsedAction = JSON.parse(message.toString())[0];
+    const parsedAction = JSON.parse(message.toString());
     switch (parsedAction.type) {
         case "Queue":
             {
