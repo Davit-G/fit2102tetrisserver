@@ -5,7 +5,7 @@
 // require the websocket module
 import WebSocket from "ws";
 import { Action, SocketState, State } from "./clientTypes";
-import { ServerAction, ServerActions, connectAction, disconnectAction, numPlayersAction, sendMessageAction, backendUpdateAction } from "./actions";
+import { connectAction, disconnectAction, numPlayersAction, sendMessageAction, backendUpdateAction, BackendActions } from "./actions";
 import { Client, ServerState, actionReducer, clientActionTransformer, Session } from "./reducers";
 import { lazyState } from "./utils";
 import { randomUUID } from "crypto";
@@ -34,7 +34,7 @@ const initialState: ServerState = {
 
 let gameState = lazyState(initialState);
 
-const updateState = (action: ServerActions) => {
+const updateState = (action: BackendActions) => {
     gameState = gameState.next(action);
 }
 
@@ -63,7 +63,8 @@ wss.on('connection', function connection(ws: WebSocket) {
     console.log("New connection: " + user.uid, "Total connections: " + gameState.value.clients.length);
 
     ws.on('message', function incoming(message) {
-        updateState(clientActionTransformer(user)(message.toString()))
+        const backendAction = clientActionTransformer(user)(message.toString())
+        if (backendAction) updateState(backendAction);
 
         // console.log("Message: " + message.toString());
         

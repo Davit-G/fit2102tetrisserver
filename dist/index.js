@@ -52,7 +52,9 @@ wss.on('connection', function connection(ws) {
     ws.send(JSON.stringify((0, actions_1.numPlayersAction)(gameState.value.clients.length)));
     console.log("New connection: " + user.uid, "Total connections: " + gameState.value.clients.length);
     ws.on('message', function incoming(message) {
-        updateState((0, reducers_1.clientActionTransformer)(user)(message.toString()));
+        const backendAction = (0, reducers_1.clientActionTransformer)(user)(message.toString());
+        if (backendAction)
+            updateState(backendAction);
         // console.log("Message: " + message.toString());
         // check all sessions, if any have events to send out, send them out
         Object.entries(gameState.value.sessions).forEach((entry) => {
