@@ -4,12 +4,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const ws_1 = __importDefault(require("ws"));
+const fs_1 = __importDefault(require("fs"));
+const https_1 = __importDefault(require("https"));
+const express_1 = __importDefault(require("express"));
 const actions_1 = require("./actions");
 const reducers_1 = require("./reducers");
 const utils_1 = require("./utils");
 const crypto_1 = require("crypto");
+// load env
+// require('dotenv').config();
+const getWSConfig = () => {
+    if (process.env.USE_SSL === "true") {
+        console.log("Using SSL");
+        const privateKey = fs_1.default.readFileSync(process.env.KEY_DIR, 'utf8');
+        const certificate = fs_1.default.readFileSync(process.env.CERT_DIR, 'utf8');
+        const credentials = { key: privateKey, cert: certificate };
+        const app = (0, express_1.default)();
+        //pass in your express app and credentials to create an https server
+        const httpsServer = https_1.default.createServer(credentials, app);
+        httpsServer.listen(3030);
+        return { server: httpsServer };
+    }
+    console.log("Not using SSL");
+    return { port: 3030, host: "0.0.0.0" };
+};
 // when we get a succesful connection, log it to the console
-const wss = new ws_1.default.Server({ port: 3030, host: "0.0.0.0" });
+const wss = new ws_1.default.Server(getWSConfig());
 const initialState = {
     clients: [],
     clientStates: {},

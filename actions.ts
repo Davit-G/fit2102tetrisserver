@@ -16,8 +16,7 @@ export type BackendActionTypes = keyof BackendPayloads;
 export type BackendActions = { [K in BackendActionTypes]: BackendAction<K> }[BackendActionTypes];
 export type BackendAction<T extends BackendActionTypes> = Action<T, BackendPayloads[T], "Backend">;
 
-export const createBackendAction = <T extends BackendActionTypes>(type: T, payload: BackendPayloads[T]): BackendAction<T> => createAction(type, payload, "Backend");
-
+const createBackendAction = <T extends BackendActionTypes>(type: T, payload: BackendPayloads[T]): BackendAction<T> => createAction(type, payload, "Backend");
 
 // given to local state action reducer
 // server -> server actions, also client -> server actions
@@ -27,7 +26,6 @@ export const backendUpdateAction = (client: Client, state: SocketState) => creat
 export const startGameAction = (client: Client, state: SocketState, gamemode: "Singleplayer" | "Multiplayer") => createBackendAction("StartGame", { client, state, gamemode })
 export const startServerAction = () => createBackendAction("StartServer", null)
 export const queueUserAction = (client: Client) => createBackendAction("Queue", { client })
-
 
 
 // for server -> client actions

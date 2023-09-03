@@ -1,11 +1,37 @@
 import WebSocket from "ws";
+import fs from "fs"
+import https from "https"
+import express from "express"
 import { connectAction, disconnectAction, numPlayersAction, sendMessageAction, backendUpdateAction, BackendActions } from "./actions";
 import { Client, ServerState, clientActionTransformer, Session, defaultSocketState } from "./reducers";
 import { lazyState } from "./utils";
 import { randomUUID } from "crypto";
 
+// load env
+// require('dotenv').config();
+
+const getWSConfig = (): WebSocket.ServerOptions => {
+    if (process.env.USE_SSL === "true") {
+        console.log("Using SSL")
+    
+        const privateKey  = fs.readFileSync(process.env.KEY_DIR as string, 'utf8');
+        const certificate = fs.readFileSync(process.env.CERT_DIR as string, 'utf8');
+    
+        const credentials = {key: privateKey, cert: certificate};
+        const app = express();
+    
+        //pass in your express app and credentials to create an https server
+        const httpsServer = https.createServer(credentials, app);
+        httpsServer.listen(3030);
+
+        return { server: httpsServer };
+    }
+    console.log("Not using SSL")
+    return {port: 3030, host: "0.0.0.0"};
+}
+
 // when we get a succesful connection, log it to the console
-const wss = new WebSocket.Server({ port: 3030, host: "0.0.0.0" });
+const wss = new WebSocket.Server(getWSConfig());
 
 const initialState: ServerState = {
     clients: [],

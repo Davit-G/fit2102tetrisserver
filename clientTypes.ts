@@ -19,7 +19,6 @@ export const createStateAction = <T extends StateActionTypes>(type: T, payload: 
 export const createClientAction = <T extends ClientActionTypes>(type: T, payload: ClientPayloads[T]): ClientAction<T> => createAction(type, payload, "Client");
 export const createServerAction = <T extends ServerActionTypes>(type: T, payload: ServerPayloads[T]): ServerAction<T> => createAction(type, payload, "Server");
 
-
 // ======
 // Internal State Actions
 // ======
@@ -49,7 +48,6 @@ export const fallAction = () => createStateAction('Fall', null);
 export const holdAction = () => createStateAction('Hold', null);
 export const pauseAction = () => createStateAction('Pause', null);
 export const startGameAction = (gamemode: "Singleplayer" | "Multiplayer") => createStateAction('StartGame', gamemode);
-
 
 // ======
 // Client Actions
